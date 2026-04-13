@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
+
+	"github.com/luigiiamatore/ghsync/internal/report"
 
 	"github.com/google/go-github/v60/github"
 	"github.com/spf13/cobra"
@@ -53,6 +56,16 @@ STATUS:
 			return
 		}
 
+		syncReport := report.SyncReport{
+			Timestamp:    time.Now(),
+			SyncedRepos:  0,
+			ClonedRepos:  0,
+			UpdatedRepos: 0,
+			Errors:       []report.SyncError{},
+		}
+
+		updatedCount := 0
+		clonedCount := 0
 		fmt.Printf("Syncing %d repositories to %s...\n\n", len(repos), dir)
 		for _, repo := range repos {
 			path := fmt.Sprintf("%s/%s", dir, repo.GetName())
@@ -63,15 +76,41 @@ STATUS:
 			}
 
 			if alreadyExists {
-				exec.Command("git", "-C", path, "pull").Run()
+				err := exec.Command("git", "-C", path, "pull").Run()
+				if err != nil {
+					syncReport.Errors = append(syncReport.Errors, report.SyncError{
+						RepoName: repo.GetName(),
+						ErrorMsg: err.Error(),
+					})
+				} else {
+					updatedCount++
+				}
 			} else {
-				exec.Command("git", "clone", repo.GetCloneURL(), path).Run()
+				err := exec.Command("git", "clone", repo.GetCloneURL(), path).Run()
+				if err != nil {
+					syncReport.Errors = append(syncReport.Errors, report.SyncError{
+						RepoName: repo.GetName(),
+						ErrorMsg: err.Error(),
+					})
+				} else {
+					clonedCount++
+				}
 			}
 
 			fmt.Printf("✓ %s\n", repo.GetName())
 		}
 
+		syncReport.SyncedRepos = updatedCount + clonedCount
+		syncReport.UpdatedRepos = updatedCount
+		syncReport.ClonedRepos = clonedCount
+
+		err = report.SaveSyncReport(syncReport)
+		if err != nil {
+			fmt.Println("Error saving sync report: ", err)
+		}
+
 		fmt.Printf("\nDone! %d repositories synced.\n", len(repos))
+		fmt.Printf("Report saved to: ~/.ghsync/reports/%s.json\n", syncReport.Timestamp.Format("2006-01-02T15-04-05"))
 	},
 }
 
