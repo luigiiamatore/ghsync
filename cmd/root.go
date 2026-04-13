@@ -24,10 +24,6 @@ USE CASES:
   • Monitor and track repository synchronization status
   • Generate audit reports for repository management
 
-EXAMPLE:
-  ghsync sync --token YOUR_GITHUB_TOKEN
-  ghsync archive --org MY_ORG
-
 For more information on specific commands, use:
   ghsync COMMAND --help`,
 }

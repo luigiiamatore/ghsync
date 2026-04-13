@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/luigiiamatore/ghsync/internal/report"
@@ -68,36 +70,37 @@ STATUS:
 		clonedCount := 0
 		fmt.Printf("Syncing %d repositories to %s...\n\n", len(repos), dir)
 		for _, repo := range repos {
-			path := fmt.Sprintf("%s/%s", dir, repo.GetName())
+			path := filepath.Join(dir, repo.GetName())
 
-			alreadyExists := false
+			var repoErr error
+
 			if _, err := os.Stat(path); err == nil {
-				alreadyExists = true
-			}
-
-			if alreadyExists {
-				err := exec.Command("git", "-C", path, "pull").Run()
-				if err != nil {
+				repoErr = exec.Command("git", "-C", path, "pull").Run()
+				if repoErr != nil {
 					syncReport.Errors = append(syncReport.Errors, report.SyncError{
 						RepoName: repo.GetName(),
-						ErrorMsg: err.Error(),
+						ErrorMsg: repoErr.Error(),
 					})
 				} else {
 					updatedCount++
 				}
 			} else {
-				err := exec.Command("git", "clone", repo.GetCloneURL(), path).Run()
-				if err != nil {
+				repoErr = exec.Command("git", "clone", repo.GetCloneURL(), path).Run()
+				if repoErr != nil {
 					syncReport.Errors = append(syncReport.Errors, report.SyncError{
 						RepoName: repo.GetName(),
-						ErrorMsg: err.Error(),
+						ErrorMsg: repoErr.Error(),
 					})
 				} else {
 					clonedCount++
 				}
 			}
 
-			fmt.Printf("✓ %s\n", repo.GetName())
+			if repoErr != nil {
+				fmt.Printf("✗ %s\n", repo.GetName())
+			} else {
+				fmt.Printf("✓ %s\n", repo.GetName())
+			}
 		}
 
 		syncReport.SyncedRepos = updatedCount + clonedCount
@@ -126,7 +129,7 @@ func readToken() (string, error) {
 		return "", err
 	}
 
-	return string(tokenBytes), nil
+	return strings.TrimSpace(string(tokenBytes)), nil
 }
 
 func authenticate(token string) *github.Client {

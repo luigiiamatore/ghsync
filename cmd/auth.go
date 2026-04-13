@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -33,21 +34,21 @@ This will prompt you to enter your token interactively.`,
 
 		home, err := os.UserHomeDir()
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Println("Error getting home directory: ", err)
 			return
 		}
 
 		configDir := filepath.Join(home, ".ghsync")
 		err = os.MkdirAll(configDir, 0700)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Println("Error creating config directory: ", err)
 			return
 		}
 
 		configFile := filepath.Join(configDir, "config")
-		err = os.WriteFile(configFile, []byte(token), 0600)
+		err = os.WriteFile(configFile, []byte(strings.TrimSpace(token)), 0600)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Println("Error writing config file: ", err)
 			return
 		}
 
