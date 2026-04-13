@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -25,7 +26,7 @@ func SaveSyncReport(report SyncReport) error {
 	if err != nil {
 		return err
 	}
-	reportDir := fmt.Sprintf("%s/.ghsync/reports", home)
+	reportDir := filepath.Join(home, ".ghsync", "reports")
 	fileName := fmt.Sprintf("%s.json", report.Timestamp.Format("2006-01-02T15-04-05"))
 
 	if _, err := os.Stat(reportDir); os.IsNotExist(err) {
@@ -35,7 +36,7 @@ func SaveSyncReport(report SyncReport) error {
 		}
 	}
 
-	reportPath := fmt.Sprintf("%s/%s", reportDir, fileName)
+	reportPath := filepath.Join(reportDir, fileName)
 	reportData, err := json.MarshalIndent(report, "", "  ")
 	if err != nil {
 		return err
