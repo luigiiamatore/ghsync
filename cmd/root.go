@@ -8,23 +8,28 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "ghsync",
-	Short: "CLI tool to sync and archive your GitHub repositories",
-	Long: `ghsync is a powerful CLI tool designed to simplify the management of your GitHub repositories.
+	Short: "Sync and manage your GitHub repositories locally",
+	Long: `ghsync is a CLI tool that helps you manage your GitHub repositories efficiently.
 
 FEATURES:
+  • Authenticate securely with your GitHub token
   • Sync all your GitHub repositories locally in bulk
-  • Archive repositories with a single command
-  • Generate detailed reports of sync/archive operations
-  • Support for authentication with GitHub tokens
-  • Automatic conflict resolution and error handling
+  • Clone new repositories and pull latest changes automatically
+  • Generate detailed reports of sync operations
+  • Support for both public and private repositories
 
-USE CASES:
-  • Backup all your repositories locally
-  • Archive inactive projects and keep your GitHub organized
-  • Monitor and track repository synchronization status
-  • Generate audit reports for repository management
+COMMANDS:
+  • auth   - Save your GitHub authentication token
+  • pull   - Sync all repositories locally
+  • report - View sync operation results
 
-For more information on specific commands, use:
+EXAMPLES:
+  ghsync auth           # Save your GitHub token
+  ghsync pull           # Sync all repositories
+  ghsync report         # View the last sync report
+  ghsync report --all   # View all sync reports
+
+For more information on a specific command, use:
   ghsync COMMAND --help`,
 }
 
