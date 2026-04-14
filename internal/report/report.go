@@ -15,6 +15,7 @@ type SyncError struct {
 
 type SyncReport struct {
 	Timestamp    time.Time
+	TotalRepos   int
 	SyncedRepos  int
 	ClonedRepos  int
 	UpdatedRepos int

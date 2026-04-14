@@ -28,6 +28,7 @@ func readSyncReport(reportPath string) (*report.SyncReport, error) {
 
 func printSyncReport(syncReport *report.SyncReport, indent string) {
 	fmt.Printf("%sReport - %s\n", indent, syncReport.Timestamp.Format("2006-01-02 15:04:05"))
+	fmt.Printf("%s  Total: %d\n", indent, syncReport.TotalRepos)
 	fmt.Printf("%s  Synced: %d\n", indent, syncReport.SyncedRepos)
 	fmt.Printf("%s  Cloned: %d\n", indent, syncReport.ClonedRepos)
 	fmt.Printf("%s  Updated: %d\n", indent, syncReport.UpdatedRepos)

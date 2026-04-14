@@ -52,7 +52,10 @@ STATUS:
 
 		client := authenticate(token)
 
-		repos, _, err := client.Repositories.ListByAuthenticatedUser(context.Background(), nil)
+		opts := &github.RepositoryListByAuthenticatedUserOptions{
+			Type: "owner",
+		}
+		repos, _, err := client.Repositories.ListByAuthenticatedUser(context.Background(), opts)
 		if err != nil {
 			fmt.Println("Error listing repositories: ", err)
 			return
@@ -60,6 +63,7 @@ STATUS:
 
 		syncReport := report.SyncReport{
 			Timestamp:    time.Now(),
+			TotalRepos:   len(repos),
 			SyncedRepos:  0,
 			ClonedRepos:  0,
 			UpdatedRepos: 0,
@@ -85,7 +89,8 @@ STATUS:
 					updatedCount++
 				}
 			} else {
-				repoErr = exec.Command("git", "clone", repo.GetCloneURL(), path).Run()
+				authenticatedURL := buildAuthenticatedCloneURL(repo.GetCloneURL(), token)
+				repoErr = exec.Command("git", "clone", authenticatedURL, path).Run()
 				if repoErr != nil {
 					syncReport.Errors = append(syncReport.Errors, report.SyncError{
 						RepoName: repo.GetName(),
@@ -135,6 +140,13 @@ func readToken() (string, error) {
 func authenticate(token string) *github.Client {
 	client := github.NewClient(nil).WithAuthToken(token)
 	return client
+}
+
+func buildAuthenticatedCloneURL(cloneURL, token string) string {
+	if strings.HasPrefix(cloneURL, "https://") {
+		return "https://" + token + ":x-oauth-basic@github.com/" + strings.TrimPrefix(cloneURL, "https://github.com/")
+	}
+	return cloneURL
 }
 
 func init() {
