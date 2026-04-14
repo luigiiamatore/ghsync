@@ -112,7 +112,7 @@ STATUS:
 			fmt.Println("Error saving sync report: ", err)
 		}
 
-		fmt.Printf("\nDone! %d repositories synced.\n", len(repos))
+		fmt.Printf("\nDone! %d repositories synced.\n", len(repos)-len(syncReport.Errors))
 		fmt.Printf("Report saved to: ~/.ghsync/reports/%s.json\n", syncReport.Timestamp.Format("2006-01-02T15-04-05"))
 	},
 }
