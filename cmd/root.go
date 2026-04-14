@@ -19,15 +19,17 @@ FEATURES:
   • Support for both public and private repositories
 
 COMMANDS:
-  • auth   - Save your GitHub authentication token
-  • pull   - Sync all repositories locally
-  • report - View sync operation results
+  • auth         - Save your GitHub authentication token
+  • pull         - Sync all repositories locally
+  • report       - View sync operation results
+  • report clear - Remove all stored reports
 
 EXAMPLES:
   ghsync auth           # Save your GitHub token
   ghsync pull           # Sync all repositories
   ghsync report         # View the last sync report
   ghsync report --all   # View all sync reports
+  ghsync report clear   # Delete all sync reports
 
 For more information on a specific command, use:
   ghsync COMMAND --help`,

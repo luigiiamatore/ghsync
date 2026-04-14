@@ -29,6 +29,13 @@ View the latest sync report:
 
 ```bash
 ./ghsync report
+./ghsync report --all     # view all reports
+```
+
+Clear all sync reports:
+
+```bash
+./ghsync report clear     # removes all stored reports
 ```
 
 ## Project Structure
@@ -36,12 +43,13 @@ View the latest sync report:
 ```text
 ghsync/
 ├── cmd/
-│   ├── auth.go       # authentication command
-│   ├── pull.go       # sync command
-│   └── report.go     # report command
+│   ├── auth.go           # authentication command
+│   ├── pull.go           # sync command
+│   ├── report.go         # report command
+│   └── report_clear.go   # clear reports command
 ├── internal/
 │   └── report/
-│       └── report.go # sync report model and storage
+│       └── report.go     # sync report model and storage
 ├── main.go
 └── README.md
 ```
