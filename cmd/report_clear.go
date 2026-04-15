@@ -25,14 +25,7 @@ Use with caution, as this action cannot be undone.`,
 			return
 		}
 
-		home, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Printf("Error getting home directory: %v\n", err)
-			return
-		}
-
-		reportsDir := filepath.Join(home, ".ghsync", "reports")
-		err = os.RemoveAll(reportsDir)
+		err := clearReports()
 		if err != nil {
 			fmt.Printf("Error clearing reports: %v\n", err)
 			return
@@ -40,6 +33,21 @@ Use with caution, as this action cannot be undone.`,
 
 		fmt.Println("All sync reports cleared successfully.")
 	},
+}
+
+func clearReports() error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	reportsDir := filepath.Join(home, ".ghsync", "reports")
+	err = os.RemoveAll(reportsDir)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func init() {
