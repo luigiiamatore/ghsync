@@ -45,6 +45,7 @@ ghsync/
 ├── cmd/
 │   ├── auth.go           # authentication command
 │   ├── pull.go           # sync command
+│   ├── pull_test.go      # sync command tests
 │   ├── report.go         # report command
 │   └── report_clear.go   # clear reports command
 ├── internal/
@@ -52,6 +53,30 @@ ghsync/
 │       └── report.go     # sync report model and storage
 ├── main.go
 └── README.md
+```
+
+## Development
+
+### Running Tests
+
+Tests are included to verify the pagination logic for repository syncing.
+
+Run all tests:
+
+```bash
+go test ./...
+```
+
+Run tests with coverage report:
+
+```bash
+go test -cover ./...
+```
+
+Run pagination test (verifies sync with 500+ repositories):
+
+```bash
+go test -run TestPullPaginationWithMockServer ./cmd -v
 ```
 
 ## License
