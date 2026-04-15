@@ -17,21 +17,55 @@ var clearCmd = &cobra.Command{
 This command will permanently remove all report files located in ~/.ghsync/reports.
 Use with caution, as this action cannot be undone.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Permanently delete all reports? (y/n): ")
-		var response string
-		fmt.Scanln(&response)
-		if strings.ToLower(response) != "y" {
-			fmt.Println("Aborting report clear.")
+		home, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Printf("Error getting home directory: %v\n", err)
 			return
 		}
 
-		err := clearReports()
+		reportsDir := filepath.Join(home, ".ghsync", "reports")
+		entries, err := os.ReadDir(reportsDir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				fmt.Println("\n⚠ No reports found to clear.")
+				return
+			}
+			fmt.Printf("Error reading reports: %v\n", err)
+			return
+		}
+
+		if len(entries) == 0 {
+			fmt.Println("\n⚠ No reports found to clear.")
+			return
+		}
+
+		// Show warning
+		fmt.Println()
+		fmt.Println("╭─ Clear Reports Warning ───────────────────────╮")
+		fmt.Printf("  You are about to delete %d report(s).\n", len(entries))
+		fmt.Println("  This action cannot be undone!")
+		fmt.Println("╰────────────────────────────────────────────────╯")
+		fmt.Println()
+
+		fmt.Printf("  Permanently delete all reports? (y/n): ")
+		var response string
+		fmt.Scanln(&response)
+		if strings.ToLower(response) != "y" {
+			fmt.Println("  ✓ Clear operation cancelled.")
+			return
+		}
+
+		err = clearReports()
 		if err != nil {
 			fmt.Printf("Error clearing reports: %v\n", err)
 			return
 		}
 
-		fmt.Println("All sync reports cleared successfully.")
+		fmt.Println()
+		fmt.Println("╭─ Success ─────────────────────────────────────╮")
+		fmt.Printf("  ✓ Cleared %d report(s).\n", len(entries))
+		fmt.Println("╰────────────────────────────────────────────────╯")
+		fmt.Println()
 	},
 }
 

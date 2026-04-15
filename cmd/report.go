@@ -49,11 +49,16 @@ EXAMPLES:
 			}
 
 			fmt.Println()
-			printSyncReport(syncReport, "")
+			printSyncReport(syncReport)
 			fmt.Println()
-		} else {
-			fmt.Printf("\nAll sync reports:\n")
-			for _, entry := range entries {
+		} else if showAll {
+			fmt.Println()
+			fmt.Println("╭─ All Sync Reports ────────────────────────────╮")
+			fmt.Printf("  Found %d report(s)\n", len(entries))
+			fmt.Println("╰────────────────────────────────────────────────╯")
+			fmt.Println()
+
+			for i, entry := range entries {
 				reportPath := filepath.Join(reportDir, entry.Name())
 				syncReport, err := readSyncReport(reportPath)
 				if err != nil {
@@ -61,9 +66,15 @@ EXAMPLES:
 					continue
 				}
 
-				printSyncReport(syncReport, "  ")
-				fmt.Println()
+				if i > 0 {
+					fmt.Println()
+				}
+				printSyncReport(syncReport)
 			}
+
+			fmt.Println()
+		} else {
+			fmt.Println("\n⚠ No reports found. Run 'ghsync pull' to generate a report.\n")
 		}
 	},
 }
@@ -83,20 +94,29 @@ func readSyncReport(reportPath string) (*report.SyncReport, error) {
 	return &syncReport, nil
 }
 
-func printSyncReport(syncReport *report.SyncReport, indent string) {
-	fmt.Printf("%sReport - %s\n", indent, syncReport.Timestamp.Format("2006-01-02 15:04:05"))
-	fmt.Printf("%s  Total: %d\n", indent, syncReport.TotalRepos)
-	fmt.Printf("%s  Synced: %d\n", indent, syncReport.SyncedRepos)
-	fmt.Printf("%s  Cloned: %d\n", indent, syncReport.ClonedRepos)
-	fmt.Printf("%s  Updated: %d\n", indent, syncReport.UpdatedRepos)
+func printSyncReport(syncReport *report.SyncReport) {
+	fmt.Println("╭─ Sync Report ─────────────────────────────────╮")
+	fmt.Printf("  📅 Date:    %s\n", syncReport.Timestamp.Format("2006-01-02 15:04:05"))
+	fmt.Println("  ─────────────────────────────────────────────")
+	fmt.Printf("  📊 Total:   %d\n", syncReport.TotalRepos)
+	fmt.Printf("  ✓ Synced:   %d\n", syncReport.SyncedRepos)
+	fmt.Printf("  ⬇ Cloned:   %d\n", syncReport.ClonedRepos)
+	fmt.Printf("  ⬆ Updated:  %d\n", syncReport.UpdatedRepos)
 
 	if len(syncReport.Errors) > 0 {
-		fmt.Printf("%s\n%s  Errors (%d):\n", indent, indent, len(syncReport.Errors))
+		fmt.Println("  ─────────────────────────────────────────────")
+		fmt.Printf("  ✗ Errors:   %d\n", len(syncReport.Errors))
+		fmt.Println("╰────────────────────────────────────────────────╯")
+		fmt.Println()
+		fmt.Println("╭─ Failed Repositories ─────────────────────────╮")
 		for _, syncErr := range syncReport.Errors {
-			fmt.Printf("%s    ✗ %s\t%s\n", indent, syncErr.RepoName, syncErr.ErrorMsg)
+			fmt.Printf("  ✗ %s\n", syncErr.RepoName)
+			fmt.Printf("    → %s\n", syncErr.ErrorMsg)
 		}
+		fmt.Println("╰────────────────────────────────────────────────╯")
 	} else {
-		fmt.Printf("%s  No errors reported.\n", indent)
+		fmt.Printf("  ✓ Errors:   0\n")
+		fmt.Println("╰────────────────────────────────────────────────╯")
 	}
 }
 

@@ -12,6 +12,7 @@ import (
 	"github.com/luigiiamatore/ghsync/internal/report"
 
 	"github.com/google/go-github/v60/github"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -88,7 +89,21 @@ STATUS:
 
 		updatedCount := 0
 		clonedCount := 0
-		fmt.Printf("Syncing %d repositories to %s...\n\n", len(repos), dir)
+		var errorMessages []string
+
+		// Header
+		fmt.Println()
+		fmt.Println("╭─ Repository Sync ─────────────────────────────╮")
+		fmt.Printf("  Syncing %d repositories to %s\n", len(repos), dir)
+		fmt.Println("╰────────────────────────────────────────────────╯")
+		fmt.Println()
+
+		bar := progressbar.NewOptions(len(repos),
+			progressbar.OptionEnableColorCodes(true),
+			progressbar.OptionShowCount(),
+			progressbar.OptionFullWidth(),
+		)
+
 		for _, repo := range repos {
 			path := filepath.Join(dir, repo.GetName())
 
@@ -101,6 +116,7 @@ STATUS:
 						RepoName: repo.GetName(),
 						ErrorMsg: repoErr.Error(),
 					})
+					errorMessages = append(errorMessages, fmt.Sprintf("✗ %s: %s", repo.GetName(), repoErr.Error()))
 				} else {
 					updatedCount++
 				}
@@ -112,17 +128,16 @@ STATUS:
 						RepoName: repo.GetName(),
 						ErrorMsg: repoErr.Error(),
 					})
+					errorMessages = append(errorMessages, fmt.Sprintf("✗ %s: %s", repo.GetName(), repoErr.Error()))
 				} else {
 					clonedCount++
 				}
 			}
 
-			if repoErr != nil {
-				fmt.Printf("✗ %s\n", repo.GetName())
-			} else {
-				fmt.Printf("✓ %s\n", repo.GetName())
-			}
+			bar.Add(1)
 		}
+
+		fmt.Println()
 
 		syncReport.SyncedRepos = updatedCount + clonedCount
 		syncReport.UpdatedRepos = updatedCount
@@ -133,8 +148,30 @@ STATUS:
 			fmt.Println("Error saving sync report: ", err)
 		}
 
-		fmt.Printf("\nDone! %d repositories synced.\n", len(repos)-len(syncReport.Errors))
-		fmt.Printf("Report saved to: ~/.ghsync/reports/%s.json\n", syncReport.Timestamp.Format("2006-01-02T15-04-05"))
+		// Summary
+		fmt.Println()
+		fmt.Println("╭─ Sync Summary ────────────────────────────────╮")
+		fmt.Printf("  ✓ Synced:  %d\n", syncReport.SyncedRepos)
+		fmt.Printf("  ⬇ Cloned:  %d\n", syncReport.ClonedRepos)
+		fmt.Printf("  ⬆ Updated: %d\n", syncReport.UpdatedRepos)
+		if len(errorMessages) > 0 {
+			fmt.Printf("  ✗ Errors:  %d\n", len(errorMessages))
+		}
+		fmt.Println("╰────────────────────────────────────────────────╯")
+
+		// Errors if any
+		if len(errorMessages) > 0 {
+			fmt.Println()
+			fmt.Println("╭─ Errors Encountered ──────────────────────────╮")
+			for _, msg := range errorMessages {
+				fmt.Printf("  %s\n", msg)
+			}
+			fmt.Println("╰────────────────────────────────────────────────╯")
+		}
+
+		fmt.Println()
+		fmt.Printf("📄 Report: ~/.ghsync/reports/%s.json\n", syncReport.Timestamp.Format("2006-01-02T15-04-05"))
+		fmt.Println()
 	},
 }
 
