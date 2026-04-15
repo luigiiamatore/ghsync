@@ -52,14 +52,30 @@ STATUS:
 
 		client := authenticate(token)
 
+		var allRepos []*github.Repository
 		opts := &github.RepositoryListByAuthenticatedUserOptions{
 			Type: "owner",
+			ListOptions: github.ListOptions{
+				PerPage: 100,
+			},
 		}
-		repos, _, err := client.Repositories.ListByAuthenticatedUser(context.Background(), opts)
-		if err != nil {
-			fmt.Println("Error listing repositories: ", err)
-			return
+
+		for {
+			repos, resp, err := client.Repositories.ListByAuthenticatedUser(context.Background(), opts)
+			if err != nil {
+				fmt.Println("Error listing repositories: ", err)
+				return
+			}
+
+			allRepos = append(allRepos, repos...)
+
+			if resp.NextPage == 0 {
+				break
+			}
+			opts.ListOptions.Page = resp.NextPage
 		}
+
+		repos := allRepos
 
 		syncReport := report.SyncReport{
 			Timestamp:    time.Now(),
