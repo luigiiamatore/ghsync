@@ -32,28 +32,35 @@ This will prompt you to enter your token interactively.`,
 		fmt.Print("Enter your GitHub token: ")
 		fmt.Scanln(&token)
 
-		home, err := os.UserHomeDir()
+		err := saveToken(strings.TrimSpace(token))
 		if err != nil {
-			fmt.Println("Error getting home directory: ", err)
-			return
-		}
-
-		configDir := filepath.Join(home, ".ghsync")
-		err = os.MkdirAll(configDir, 0700)
-		if err != nil {
-			fmt.Println("Error creating config directory: ", err)
-			return
-		}
-
-		configFile := filepath.Join(configDir, "config")
-		err = os.WriteFile(configFile, []byte(strings.TrimSpace(token)), 0600)
-		if err != nil {
-			fmt.Println("Error writing config file: ", err)
+			fmt.Println("Error saving token: ", err)
 			return
 		}
 
 		fmt.Println("Token saved successfully!")
 	},
+}
+
+func saveToken(token string) error {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	configDir := filepath.Join(home, ".ghsync")
+	err = os.MkdirAll(configDir, 0700)
+	if err != nil {
+		return err
+	}
+
+	configFile := filepath.Join(configDir, "config")
+	err = os.WriteFile(configFile, []byte(token), 0600)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func init() {
