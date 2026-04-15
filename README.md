@@ -44,6 +44,7 @@ Clear all sync reports:
 ghsync/
 ├── cmd/
 │   ├── auth.go           # authentication command
+│   ├── auth_test.go      # authentication tests
 │   ├── pull.go           # sync command
 │   ├── pull_test.go      # sync command tests
 │   ├── report.go         # report command
@@ -59,7 +60,10 @@ ghsync/
 
 ### Running Tests
 
-Tests are included to verify the pagination logic for repository syncing.
+Tests are included to verify core functionality across commands:
+
+- **Authentication tests**: verify token is saved with correct permissions
+- **Pagination tests**: verify repository sync with 500+ repositories
 
 Run all tests:
 
