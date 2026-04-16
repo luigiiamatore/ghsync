@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/luigiiamatore/ghsync/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -28,10 +29,10 @@ EXAMPLE:
 This will prompt you to enter your token interactively.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println()
-		fmt.Println("╭─ GitHub Authentication ───────────────────────╮")
-		fmt.Println("  Enter your GitHub personal access token.")
-		fmt.Println("  💡 Generate at: https://github.com/settings/tokens")
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		ui.PrintBox("GitHub Authentication",
+			"Enter your GitHub personal access token.",
+			"💡 Generate at: https://github.com/settings/tokens",
+		)
 		fmt.Println()
 
 		fmt.Print("  Token: ")
@@ -40,21 +41,25 @@ This will prompt you to enter your token interactively.`,
 
 		token = strings.TrimSpace(token)
 		if token == "" {
-			fmt.Println("\n  ✗ Token cannot be empty.")
+			fmt.Println()
+			ui.PrintWarning("Token cannot be empty.")
+			fmt.Println()
 			return
 		}
 
 		err := saveToken(token)
 		if err != nil {
-			fmt.Printf("\n  ✗ Error saving token: %v\n\n", err)
+			fmt.Println()
+			fmt.Printf("Error saving token: %v\n", err)
+			fmt.Println()
 			return
 		}
 
 		fmt.Println()
-		fmt.Println("╭─ Success ─────────────────────────────────────╮")
-		fmt.Println("  ✓ Token saved successfully!")
-		fmt.Printf("  📝 Location: ~/.ghsync/config\n")
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		ui.PrintSuccess(
+			"✓ Token saved successfully!",
+			"📝 Location: ~/.ghsync/config",
+		)
 		fmt.Println()
 	},
 }

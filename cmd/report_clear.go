@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/luigiiamatore/ghsync/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -41,10 +42,10 @@ Use with caution, as this action cannot be undone.`,
 
 		// Show warning
 		fmt.Println()
-		fmt.Println("╭─ Clear Reports Warning ───────────────────────╮")
-		fmt.Printf("  You are about to delete %d report(s).\n", len(entries))
-		fmt.Println("  This action cannot be undone!")
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		ui.PrintWarning(
+			fmt.Sprintf("You are about to delete %d report(s).", len(entries)),
+			"This action cannot be undone!",
+		)
 		fmt.Println()
 
 		fmt.Printf("  Permanently delete all reports? (y/n): ")
@@ -62,9 +63,7 @@ Use with caution, as this action cannot be undone.`,
 		}
 
 		fmt.Println()
-		fmt.Println("╭─ Success ─────────────────────────────────────╮")
-		fmt.Printf("  ✓ Cleared %d report(s).\n", len(entries))
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		ui.PrintSuccess(fmt.Sprintf("Cleared %d report(s).", len(entries)))
 		fmt.Println()
 	},
 }

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/luigiiamatore/ghsync/internal/report"
+	"github.com/luigiiamatore/ghsync/internal/ui"
 
 	"github.com/google/go-github/v60/github"
 	"github.com/schollz/progressbar/v3"
@@ -93,9 +94,9 @@ STATUS:
 
 		// Header
 		fmt.Println()
-		fmt.Println("╭─ Repository Sync ─────────────────────────────╮")
-		fmt.Printf("  Syncing %d repositories to %s\n", len(repos), dir)
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		ui.PrintBox("Repository Sync",
+			fmt.Sprintf("Syncing %d repositories to %s", len(repos), dir),
+		)
 		fmt.Println()
 
 		bar := progressbar.NewOptions(len(repos),
@@ -150,23 +151,20 @@ STATUS:
 
 		// Summary
 		fmt.Println()
-		fmt.Println("╭─ Sync Summary ────────────────────────────────╮")
-		fmt.Printf("  ✓ Synced:  %d\n", syncReport.SyncedRepos)
-		fmt.Printf("  ⬇ Cloned:  %d\n", syncReport.ClonedRepos)
-		fmt.Printf("  ⬆ Updated: %d\n", syncReport.UpdatedRepos)
-		if len(errorMessages) > 0 {
-			fmt.Printf("  ✗ Errors:  %d\n", len(errorMessages))
+		summaryLines := []string{
+			fmt.Sprintf("✓ Synced:  %d", syncReport.SyncedRepos),
+			fmt.Sprintf("⬇ Cloned:  %d", syncReport.ClonedRepos),
+			fmt.Sprintf("⬆ Updated: %d", syncReport.UpdatedRepos),
 		}
-		fmt.Println("╰────────────────────────────────────────────────╯")
+		if len(errorMessages) > 0 {
+			summaryLines = append(summaryLines, fmt.Sprintf("✗ Errors:  %d", len(errorMessages)))
+		}
+		ui.PrintBox("Sync Summary", summaryLines...)
 
 		// Errors if any
 		if len(errorMessages) > 0 {
 			fmt.Println()
-			fmt.Println("╭─ Errors Encountered ──────────────────────────╮")
-			for _, msg := range errorMessages {
-				fmt.Printf("  %s\n", msg)
-			}
-			fmt.Println("╰────────────────────────────────────────────────╯")
+			ui.PrintErrors(errorMessages...)
 		}
 
 		fmt.Println()
