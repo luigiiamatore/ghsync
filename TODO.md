@@ -2,11 +2,6 @@
 
 ## Alta Priorità
 
-- [ ] **Deduplicate UI boxes** - Create helper functions for box formatting
-  - Extract `printBox(title, content)` function
-  - Use across all commands (pull, report, clear, auth)
-  - Reduce code duplication
-
 - [ ] **Proper error handling** - Log errors to stderr instead of stdout
   - Use `fmt.Fprintf(os.Stderr, ...)` for errors
   - Keep stdout clean for normal output
